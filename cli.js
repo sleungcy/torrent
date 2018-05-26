@@ -133,7 +133,7 @@ if (source === 'create') {
 
   getSource(source, function (body) {
     var dl = torrent(body, argv)
-
+    var status_handler;
     dl.on('ready', function () {
       if (argv.peer) {
         console.log('connecting to peer', argv.peer)
@@ -171,7 +171,14 @@ if (source === 'create') {
           timeRemaining = 'Calculating'
         }
 
-        if (percentage > 100) { percentage = 100 }
+        if (percentage > 100) { 
+          percentage = 100;  
+          setTimeout(()=>{
+            dl.destroy(()=>{
+              clearInterval(status_handler);
+            });
+          }, 1000)
+        }
 
         for (var i = 0; i < bars; i++) {
           progressBar = progressBar + '='
@@ -190,7 +197,7 @@ if (source === 'create') {
         )
       }
 
-      setInterval(status, 500)
+      status_handler = setInterval(status, 500)
       status()
     })
   })
